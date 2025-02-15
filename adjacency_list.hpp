@@ -68,31 +68,34 @@ class adjacency_list {
     auto second_vertex_adjacency = edges_.find(second);   
     if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end())
       throw std::invalid_argument("There are no such vertexes in graph");
-    if (Weighted)
-      return false;
     
-    first_vertex_adjacency->second.insert({second, 1});
-    if (!Directed) {
-      second_vertex_adjacency->second.insert({first, 1});
+    if constexpr (Weighted)
+      return false;
+    else {
+      first_vertex_adjacency->second.insert({second, 1});
+      if (!Directed) {
+        second_vertex_adjacency->second.insert({first, 1});
+      }
     }
     return true;
   }
-
+  
   bool add_edge(VertexType* const & first, VertexType* const & second, const WeightType& weight) { 
     auto first_vertex_adjacency  = edges_.find(first);
     auto second_vertex_adjacency = edges_.find(second);   
     if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end()) 
       throw std::invalid_argument("There are no such vertexes in graph");
-    if (!Weighted)
+    if constexpr (!Weighted)
       return false;               
-    
-    first_vertex_adjacency->second.insert({second, weight}); 
-    if (!Directed) {
-      second_vertex_adjacency->second.insert({first, weight});
+    else {
+      first_vertex_adjacency->second.insert({second, weight}); 
+      if (!Directed) {
+        second_vertex_adjacency->second.insert({first, weight});
+      }
     }
     return true;
   }
-
+  
   bool remove_edge(VertexType* const & first, VertexType* const & second) {
     auto first_vertex_adjacency  = edges_.find(first);
     auto second_vertex_adjacency = edges_.find(second);   
