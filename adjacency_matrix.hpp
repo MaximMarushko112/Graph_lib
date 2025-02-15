@@ -3,7 +3,6 @@
 
 #include <functional>
 #include <iterator>
-#include <iostream>
 #include <stack>
 #include <stdexcept>
 #include <unordered_map>
