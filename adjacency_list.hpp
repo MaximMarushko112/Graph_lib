@@ -50,7 +50,7 @@ class adjacency_list {
   bool remove_vertex(VertexType* const & vertex) {  
     auto vertex_iterator = edges_.find(vertex);   
     if (vertex_iterator == edges_.end())
-      return false;
+      throw std::invalid_argument("There is no such vertex in graph");
     
     for (auto other_vertex : edges_) {
       remove_edge(vertex, other_vertex.first);
@@ -65,8 +65,10 @@ class adjacency_list {
   bool add_edge(VertexType* const & first, VertexType* const & second) {  
     auto first_vertex_adjacency  = edges_.find(first);
     auto second_vertex_adjacency = edges_.find(second);   
-    if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end() || Weighted)
-      return false;               
+    if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end())
+      throw std::invalid_argument("There are no such vertexes in graph");
+    if (Weighted)
+      return false;
     
     first_vertex_adjacency->second.insert({second, 1});
     if (!Directed) {
@@ -78,7 +80,9 @@ class adjacency_list {
   bool add_edge(VertexType* const & first, VertexType* const & second, const WeightType& weight) { 
     auto first_vertex_adjacency  = edges_.find(first);
     auto second_vertex_adjacency = edges_.find(second);   
-    if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end() || !Weighted)
+    if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end()) 
+      throw std::invalid_argument("There are no such vertexes in graph");
+    if (!Weighted)
       return false;               
     
     first_vertex_adjacency->second.insert({second, weight}); 
@@ -92,7 +96,7 @@ class adjacency_list {
     auto first_vertex_adjacency  = edges_.find(first);
     auto second_vertex_adjacency = edges_.find(second);   
     if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end())
-      return false;               
+      throw std::invalid_argument("There are no such vertexes in graph");               
     
     auto edge = first_vertex_adjacency->second.find(second);
     if (edge == first_vertex_adjacency->second.end()) 
