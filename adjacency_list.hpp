@@ -33,7 +33,8 @@ class adjacency_list {
   }
 
   adjacency_list& operator=(adjacency_list&& g) {
-    edges_ = std::move(g.edges_);
+    if (&g != this)
+      edges_ = std::move(g.edges_);
     return *this;
   }
 
