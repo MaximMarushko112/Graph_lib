@@ -15,6 +15,7 @@ class adjacency_list {
   class Iterator;
 
  public:
+  using vertex_descriptor       = VertexType*;
   using iterator                = Iterator<false>;
   using const_iterator          = Iterator<true>;
   using reverse_iterator        = std::reverse_iterator<iterator>;
