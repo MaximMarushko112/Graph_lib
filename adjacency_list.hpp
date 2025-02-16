@@ -46,7 +46,7 @@ class adjacency_list {
   }
 
   bool add_vertex(VertexType* const & vertex) {
-    vertexes.insert(vertex);
+    vertexes_.insert(vertex);
     return edges_.insert({vertex, std::unordered_map<VertexType*, WeightType>()}).second;
   }
 
@@ -61,7 +61,7 @@ class adjacency_list {
         remove_edge(other_vertex.first, vertex);  
     }
 
-    vertexes.erase(vertexes.find(vertex));
+    vertexes_.erase(vertexes_.find(vertex));
     edges_.erase(vertex_iterator);
     return true;
   }
@@ -120,6 +120,27 @@ class adjacency_list {
     return true;
   }
 
+  WeightType edge_weight(VertexType* const & first, VertexType* const & second) {
+    auto first_vertex_adjacency  = edges_.find(first);
+    auto second_vertex_adjacency = edges_.find(second);   
+    if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end())
+      throw std::invalid_argument("There are no such vertexes in graph");
+    
+    auto edge = first_vertex_adjacency->second.find(second);
+    if (edge == first_vertex_adjacency->second.end()) 
+      throw std::invalid_argument("There is no such edge in graph");
+    
+    return edges_[first][second];
+  }
+
+  auto vertexes_begin() {
+    return vertexes_.begin();
+  }
+
+  auto vertexes_end() {
+    return vertexes_.end();
+  }
+
   iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
     auto vertex_iter = edges_.find(vertex);
     if (vertex_iter == edges_.end())
@@ -137,10 +158,7 @@ class adjacency_list {
  private:
   static bool ret_true(VertexType* const &) { return true; }
 
- public:
-  std::unordered_set<VertexType*> vertexes;
- 
- private:
+  std::unordered_set<VertexType*> vertexes_;
   std::unordered_map<VertexType*, std::unordered_map<VertexType*, WeightType>> edges_;
 };
 

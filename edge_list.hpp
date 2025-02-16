@@ -58,7 +58,6 @@ class edge_list {
   }
 
   bool add_vertex(VertexType* const & vertex) {
-    vertexes.insert(vertex);
     return vertexes_.insert(vertex).second;
   }
 
@@ -72,7 +71,6 @@ class edge_list {
       remove_edge(neighbour, vertex);
     }
 
-    vertexes.erase(vertexes.find(vertex));
     vertexes_.erase(vertex_iterator);
     return true;
   }
@@ -123,6 +121,29 @@ class edge_list {
     return edge_found;
   }
 
+  WeightType edge_weight(VertexType* const & first, VertexType* const & second) {
+    if (vertexes_.find(first) == vertexes_.end() || vertexes_.find(second) == vertexes_.end())
+      throw std::invalid_argument("There are no such vertexes in graph");
+    
+    auto edge = edges_.find(std::pair{first, second});
+    if (edge != edges_.end())
+      return edges_[std::pair{first, second}];
+    if (!Directed) {
+      auto reverse_edge = edges_.find(std::pair{second, first});
+      if (reverse_edge != edges_.end())
+        return edges_[std::pair{second, first}];
+    }
+    throw std::invalid_argument("There is no such edge in graph");
+  }
+
+  auto vertexes_begin() {
+    return vertexes_.begin();
+  }
+
+  auto vertexes_end() {
+    return vertexes_.end();
+  }
+
   iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
     auto vertex_iter = vertexes_.find(vertex);
     if (vertex_iter == vertexes_.end())
@@ -140,10 +161,6 @@ class edge_list {
  private:
   static bool ret_true(VertexType* const &) { return true; }
 
- public:
-  std::unordered_set<VertexType*> vertexes;
-
- private:
   std::unordered_set<VertexType*> vertexes_;
   std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash> edges_;
 };
