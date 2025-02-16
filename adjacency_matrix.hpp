@@ -6,6 +6,7 @@
 #include <stack>
 #include <stdexcept>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -71,6 +72,7 @@ class adjacency_matrix {
     std::size_t index = free_index();
     if (!indexes_.insert({vertex, index}).second)
       return false;
+    vertexes.insert(vertex);
     vertexes_[index] = vertex;
     ++vertex_count_;
     return true;
@@ -87,6 +89,7 @@ class adjacency_matrix {
       matrix_[other_index][vertex_index] = Edge{false, WeightType()};  
     }
 
+    vertexes.erase(vertexes.find(vertex));
     vertexes_[vertex_index] = nullptr;
     indexes_.erase(vertex_iterator);
     free_indexes_.push(vertex_index);
@@ -98,7 +101,7 @@ class adjacency_matrix {
     auto first_vertex_index  = indexes_.find(first);
     auto second_vertex_index = indexes_.find(second);   
     if (first_vertex_index == indexes_.end() || second_vertex_index == indexes_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");
+      throw std::invalid_argument("There are no such vertexes_ in graph");
     
     if constexpr (Weighted)
       return false;
@@ -115,7 +118,7 @@ class adjacency_matrix {
     auto first_vertex_index  = indexes_.find(first);
     auto second_vertex_index = indexes_.find(second);   
     if (first_vertex_index == indexes_.end() || second_vertex_index == indexes_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");
+      throw std::invalid_argument("There are no such vertexes_ in graph");
     
     if constexpr (!Weighted)
       return false;
@@ -132,14 +135,15 @@ class adjacency_matrix {
     auto first_vertex_index  = indexes_.find(first);
     auto second_vertex_index = indexes_.find(second);   
     if (first_vertex_index == indexes_.end() || second_vertex_index == indexes_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");               
+      throw std::invalid_argument("There are no such vertexes_ in graph");               
     
+    bool edge_found = matrix_[first_vertex_index->second][second_vertex_index->second].is_exist;
     matrix_[first_vertex_index->second][second_vertex_index->second] = Edge{false, WeightType()};
     if (!Directed) {
       matrix_[second_vertex_index->second][first_vertex_index->second] = Edge{false, WeightType()};
     }
 
-    return true;
+    return edge_found;
   }
 
   iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
@@ -162,7 +166,7 @@ class adjacency_matrix {
   std::size_t free_index() {
     if (free_indexes_.empty()) {
       if (vertex_count_ >= max_vertex_count_)
-        throw std::length_error("Too much vertexes");
+        throw std::length_error("Too much vertexes_");
       return vertex_count_;
     }
     std::size_t index = free_indexes_.top();
@@ -170,8 +174,12 @@ class adjacency_matrix {
     return index;
   }
 
-  std::unordered_map<VertexType*, std::size_t> indexes_;
+ public:
+  std::unordered_set<VertexType*> vertexes;
+  
+ private:
   std::vector<VertexType*> vertexes_;
+  std::unordered_map<VertexType*, std::size_t> indexes_;
   std::vector<std::vector<Edge>> matrix_;
   std::stack<std::size_t> free_indexes_;
   std::size_t vertex_count_;

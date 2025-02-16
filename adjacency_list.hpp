@@ -5,6 +5,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 template<typename VertexType, bool Directed, bool Weighted=false, typename WeightType=int>
@@ -45,6 +46,7 @@ class adjacency_list {
   }
 
   bool add_vertex(VertexType* const & vertex) {
+    vertexes.insert(vertex);
     return edges_.insert({vertex, std::unordered_map<VertexType*, WeightType>()}).second;
   }
 
@@ -59,6 +61,7 @@ class adjacency_list {
         remove_edge(other_vertex.first, vertex);  
     }
 
+    vertexes.erase(vertexes.find(vertex));
     edges_.erase(vertex_iterator);
     return true;
   }
@@ -134,6 +137,10 @@ class adjacency_list {
  private:
   static bool ret_true(VertexType* const &) { return true; }
 
+ public:
+  std::unordered_set<VertexType*> vertexes;
+ 
+ private:
   std::unordered_map<VertexType*, std::unordered_map<VertexType*, WeightType>> edges_;
 };
 
