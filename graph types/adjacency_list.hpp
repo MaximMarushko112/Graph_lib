@@ -134,22 +134,22 @@ class adjacency_list {
     return edges_[first][second];
   }
 
-  auto vertexes_begin() {
+  auto vertexes_begin() const {
     return vertexes_.begin();
   }
 
-  auto vertexes_end() {
+  auto vertexes_end() const {
     return vertexes_.end();
   }
 
-  iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
+  iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
     auto vertex_iter = edges_.find(vertex);
     if (vertex_iter == edges_.end())
       throw std::invalid_argument("There is no such vertex in graph");
     return iterator(vertex_iter->second.begin(), vertex_iter->second.end(), filter);
   }
 
-  iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
+  iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
     auto vertex_iter = edges_.find(vertex);
     if (vertex_iter == edges_.end())
       throw std::invalid_argument("There is no such vertex in graph");
@@ -168,12 +168,12 @@ template <bool IsConst>
 class adjacency_list<VertexType, Directed, Weighted, WeightType>::Iterator {
  public:
   using iterator_category = std::forward_iterator_tag;
-  using value_type        = std::conditional_t<IsConst, const VertexType, VertexType>;
-  using reference         = std::conditional_t<IsConst, const VertexType&, VertexType&>;
+  using value_type        = std::conditional_t<IsConst, const VertexType*, VertexType*>;
+  using reference         = std::conditional_t<IsConst, const VertexType* const &, VertexType* const &>;
   using pointer           = std::conditional_t<IsConst, const VertexType*, VertexType*>;
 
-  Iterator(typename std::unordered_map<VertexType*, WeightType>::iterator neighbour_iter, 
-           typename std::unordered_map<VertexType*, WeightType>::iterator end, std::function<bool(VertexType* const &)> filter) 
+  Iterator(typename std::unordered_map<VertexType*, WeightType>::const_iterator neighbour_iter, 
+           typename std::unordered_map<VertexType*, WeightType>::const_iterator end, std::function<bool(VertexType* const &)> filter) 
            : neighbour_iter_(neighbour_iter), end_(end), filter_(filter) {
     while (neighbour_iter_ != end_ && !filter_(neighbour_iter_->first))
       ++neighbour_iter_;
@@ -193,7 +193,7 @@ class adjacency_list<VertexType, Directed, Weighted, WeightType>::Iterator {
   }
 
   reference operator*() const {
-    return *neighbour_iter_->first;
+    return neighbour_iter_->first;
   }
 
   pointer operator->() const {
@@ -209,8 +209,8 @@ class adjacency_list<VertexType, Directed, Weighted, WeightType>::Iterator {
   }
 
  private:
-  typename std::unordered_map<VertexType*, WeightType>::iterator neighbour_iter_;
-  typename std::unordered_map<VertexType*, WeightType>::iterator end_;
+  typename std::unordered_map<VertexType*, WeightType>::const_iterator neighbour_iter_;
+  typename std::unordered_map<VertexType*, WeightType>::const_iterator end_;
   std::function<bool(VertexType* const &)> filter_;
 };
 

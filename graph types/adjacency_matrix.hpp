@@ -147,7 +147,7 @@ class adjacency_matrix {
     return edge_found;
   }
 
-  WeightType edge_weight(VertexType* const & first, VertexType* const & second) {
+  WeightType edge_weight(VertexType* const & first, VertexType* const & second) const {
     auto first_vertex_index  = indexes_.find(first);
     auto second_vertex_index = indexes_.find(second);   
     if (first_vertex_index == indexes_.end() || second_vertex_index == indexes_.end())
@@ -158,22 +158,22 @@ class adjacency_matrix {
     return matrix_[first_vertex_index->second][second_vertex_index->second].weight; 
   }
 
-  auto vertexes_begin() {
-    return vertexes_set_.begin();
+  auto vertexes_begin() const {
+    return vertexes_set_.cbegin();
   }
 
-  auto vertexes_end() {
-    return vertexes_set_.end();
+  auto vertexes_end() const {
+    return vertexes_set_.cend();
   }
 
-  iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
+  iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
     auto vertex_iter = indexes_.find(vertex);
     if (vertex_iter == indexes_.end())
       throw std::invalid_argument("There is no such vertex in graph");
     return iterator(&vertexes_, &matrix_[vertex_iter->second], 0, filter);
   }
 
-  iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
+  iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
     auto vertex_iter = indexes_.find(vertex);
     if (vertex_iter == indexes_.end())
       throw std::invalid_argument("There is no such vertex in graph");
@@ -209,11 +209,11 @@ template <bool IsConst>
 class adjacency_matrix<VertexType, Directed, Weighted, WeightType>::Iterator {
  public:
   using iterator_category = std::forward_iterator_tag;
-  using value_type        = std::conditional_t<IsConst, const VertexType, VertexType>;
-  using reference         = std::conditional_t<IsConst, const VertexType&, VertexType&>;
+  using value_type        = std::conditional_t<IsConst, const VertexType*, VertexType*>;
+  using reference         = std::conditional_t<IsConst, const VertexType*&, VertexType* const &>;
   using pointer           = std::conditional_t<IsConst, const VertexType*, VertexType*>;
 
-  Iterator(std::vector<VertexType*>* vertexes, std::vector<Edge>* adjacency, std::size_t neighbour_index, std::function<bool(VertexType* const &)> filter) 
+  Iterator(const std::vector<VertexType*>* vertexes, const std::vector<Edge>* adjacency, std::size_t neighbour_index, std::function<bool(VertexType* const &)> filter) 
            : vertexes_(vertexes), adjacency_(adjacency), neighbour_index_(neighbour_index), filter_(filter) {
     while (neighbour_index_ != adjacency_->size() && (!(*adjacency_)[neighbour_index_].is_exist || !filter_((*vertexes_)[neighbour_index_]))) 
       ++neighbour_index_;
@@ -233,7 +233,7 @@ class adjacency_matrix<VertexType, Directed, Weighted, WeightType>::Iterator {
   }
 
   reference operator*() const {
-    return *((*vertexes_)[neighbour_index_]);
+    return (*vertexes_)[neighbour_index_];
   }
 
   pointer operator->() const {
@@ -249,8 +249,8 @@ class adjacency_matrix<VertexType, Directed, Weighted, WeightType>::Iterator {
   }
 
  private:
-  std::vector<VertexType*>* vertexes_;
-  std::vector<Edge>* adjacency_;
+  const std::vector<VertexType*>* vertexes_;
+  const std::vector<Edge>* adjacency_;
   std::size_t neighbour_index_;
   std::function<bool(VertexType* const &)> filter_;
 };

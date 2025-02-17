@@ -122,7 +122,7 @@ class edge_list {
     return edge_found;
   }
 
-  WeightType edge_weight(VertexType* const & first, VertexType* const & second) {
+  WeightType edge_weight(VertexType* const & first, VertexType* const & second) const {
     if (vertexes_.find(first) == vertexes_.end() || vertexes_.find(second) == vertexes_.end())
       throw std::invalid_argument("There are no such vertexes in graph");
     
@@ -137,22 +137,22 @@ class edge_list {
     throw std::invalid_argument("There is no such edge in graph");
   }
 
-  auto vertexes_begin() {
+  auto vertexes_begin() const {
     return vertexes_.begin();
   }
 
-  auto vertexes_end() {
+  auto vertexes_end() const {
     return vertexes_.end();
   }
 
-  iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
+  iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
     auto vertex_iter = vertexes_.find(vertex);
     if (vertex_iter == vertexes_.end())
       throw std::invalid_argument("There is no such vertex in graph");
     return iterator(&edges_, vertexes_.begin(), vertexes_.end(), vertex, filter);
   }
 
-  iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) {
+  iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
     auto vertex_iter = vertexes_.find(vertex);
     if (vertex_iter == vertexes_.end())
       throw std::invalid_argument("There is no such vertex in graph");
@@ -171,12 +171,12 @@ template <bool IsConst>
 class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
  public:
   using iterator_category = std::forward_iterator_tag;
-  using value_type        = std::conditional_t<IsConst, const VertexType, VertexType>;
-  using reference         = std::conditional_t<IsConst, const VertexType&, VertexType&>;
+  using value_type        = std::conditional_t<IsConst, const VertexType*, VertexType*>;
+  using reference         = std::conditional_t<IsConst, const VertexType* const &, VertexType* const &>;
   using pointer           = std::conditional_t<IsConst, const VertexType*, VertexType*>;
 
-  Iterator(std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash>* edges, typename std::unordered_set<VertexType*>::iterator neighbour, 
-           typename std::unordered_set<VertexType*>::iterator end, VertexType* vertex, std::function<bool(VertexType* const &)> filter) 
+  Iterator(const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash>* edges, typename std::unordered_set<VertexType*>::const_iterator neighbour, 
+           typename std::unordered_set<VertexType*>::const_iterator end, VertexType* vertex, std::function<bool(VertexType* const &)> filter) 
            : edges_(edges), neighbour_(neighbour), end_(end), vertex_(vertex), filter_(filter) {
     while (neighbour_ != end_ && (!filter_(*neighbour_) || (edges_->find({vertex_, *neighbour_}) == edges_->end() && edges_->find({*neighbour_, vertex_}) == edges_->end()))) 
       ++neighbour_;
@@ -196,7 +196,7 @@ class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
   }
 
   reference operator*() const {
-    return **neighbour_;
+    return *neighbour_;
   }
 
   pointer operator->() const {
@@ -212,9 +212,9 @@ class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
   }
 
  private:
-  std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash>* edges_;
-  typename std::unordered_set<VertexType*>::iterator neighbour_;
-  typename std::unordered_set<VertexType*>::iterator end_;
+  const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash>* edges_;
+  typename std::unordered_set<VertexType*>::const_iterator neighbour_;
+  typename std::unordered_set<VertexType*>::const_iterator end_;
   VertexType* vertex_;
   std::function<bool(VertexType* const &)> filter_;
 };
