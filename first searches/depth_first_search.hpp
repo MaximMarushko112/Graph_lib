@@ -1,5 +1,5 @@
-#ifndef BREADTH_FIRST_SEARCH_HPP_
-#define BREADTH_FIRST_SEARCH_HPP_
+#ifndef DEPTH_FIRST_SEARCH_HPP_
+#define DEPTH_FIRST_SEARCH_HPP_
 
 #include <unordered_map>
 #include <vector>
@@ -80,4 +80,4 @@ void depth_first_visit(const Graph& g, typename Graph::vertex_descriptor root, V
   visitor.finish_vertex(root, g);
 }
 
-#endif // BREADTH_FIRST_SEARCH_HPP_
+#endif // DEPTH_FIRST_SEARCH_HPP_
