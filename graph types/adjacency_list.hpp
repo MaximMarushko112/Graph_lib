@@ -16,6 +16,7 @@ class adjacency_list {
 
  public:
   using vertex_descriptor       = VertexType*;
+  using weight                  = WeightType;
   using iterator                = Iterator<false>;
   using const_iterator          = Iterator<true>;
   using reverse_iterator        = std::reverse_iterator<iterator>;
@@ -121,7 +122,7 @@ class adjacency_list {
     return true;
   }
 
-  WeightType edge_weight(VertexType* const & first, VertexType* const & second) {
+  WeightType edge_weight(VertexType* const & first, VertexType* const & second) const {
     auto first_vertex_adjacency  = edges_.find(first);
     auto second_vertex_adjacency = edges_.find(second);   
     if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end())
@@ -131,7 +132,7 @@ class adjacency_list {
     if (edge == first_vertex_adjacency->second.end()) 
       throw std::invalid_argument("There is no such edge in graph");
     
-    return edges_[first][second];
+    return edge->second;
   }
 
   auto vertexes_begin() const {

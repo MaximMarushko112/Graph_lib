@@ -24,6 +24,7 @@ class edge_list {
 
  public:
   using vertex_descriptor       = VertexType*;
+  using weight                  = WeightType;
   using iterator                = Iterator<false>;
   using const_iterator          = Iterator<true>;
   using reverse_iterator        = std::reverse_iterator<iterator>;
@@ -128,11 +129,11 @@ class edge_list {
     
     auto edge = edges_.find(std::pair{first, second});
     if (edge != edges_.end())
-      return edges_[std::pair{first, second}];
+      return edges_.find(std::pair{first, second})->second;
     if (!Directed) {
       auto reverse_edge = edges_.find(std::pair{second, first});
       if (reverse_edge != edges_.end())
-        return edges_[std::pair{second, first}];
+        return edges_.find(std::pair{second, first})->second;
     }
     throw std::invalid_argument("There is no such edge in graph");
   }
