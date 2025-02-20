@@ -128,13 +128,13 @@ class edge_list : public basic_graph<VertexType> {
   }
 
   iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
-    if (!vertex_in_graph(vertex))
+    if (!basic_graph<VertexType>::vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
     return iterator(&edges_, basic_graph<VertexType>::vertexes_begin(), basic_graph<VertexType>::vertexes_end(), vertex, filter);
   }
 
   iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
-    if (!vertex_in_graph(vertex))
+    if (!basic_graph<VertexType>::vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
     return iterator(&edges_, basic_graph<VertexType>::vertexes_end(), basic_graph<VertexType>::vertexes_end(), vertex, filter);
   }
