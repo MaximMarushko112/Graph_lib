@@ -154,8 +154,9 @@ class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
   using reference         = std::conditional_t<IsConst, const VertexType* const &, VertexType* const &>;
   using pointer           = std::conditional_t<IsConst, const VertexType*, VertexType*>;
 
-  Iterator(const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash<VertexType>>* edges, typename std::unordered_set<VertexType*>::const_iterator neighbour, 
-           typename std::unordered_set<VertexType*>::const_iterator end, VertexType* vertex, std::function<bool(VertexType* const &)> filter) 
+  Iterator(const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash<VertexType>>* edges, 
+           typename basic_graph<VertexType>::basic_iterator neighbour, typename basic_graph<VertexType>::basic_iterator end, 
+           VertexType* vertex, std::function<bool(VertexType* const &)> filter) 
            : edges_(edges), neighbour_(neighbour), end_(end), vertex_(vertex), filter_(filter) {
     while (neighbour_ != end_ && (!filter_(*neighbour_) || (edges_->find({vertex_, *neighbour_}) == edges_->end() && edges_->find({*neighbour_, vertex_}) == edges_->end()))) 
       ++neighbour_;
@@ -192,8 +193,8 @@ class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
 
  private:
   const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash<VertexType>>* edges_;
-  typename std::unordered_set<VertexType*>::const_iterator neighbour_;
-  typename std::unordered_set<VertexType*>::const_iterator end_;
+  typename basic_graph<VertexType>::basic_iterator neighbour_;
+  typename basic_graph<VertexType>::basic_iterator end_;
   VertexType* vertex_;
   std::function<bool(VertexType* const &)> filter_;
 };

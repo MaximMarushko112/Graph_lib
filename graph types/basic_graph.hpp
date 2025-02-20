@@ -1,11 +1,24 @@
 #ifndef BASIC_GRAPH_HPP_
 #define BASIC_GRAPH_HPP_
 
+#include <functional>
+#include <iterator>
+
 #include "../utils/edge_hash.hpp"
 
 template<typename VertexType>
 class basic_graph {
+ private:
+  template <bool IsConst>
+  class Iterator;
+
  public:
+  using basic_iterator               = Iterator<false>;
+  using const_basic_iterator         = Iterator<true>;
+  using reverse_basic_iterator       = std::reverse_iterator<basic_iterator>;
+  using const_reverse_basic_iterator = std::reverse_iterator<const_basic_iterator>;
+  using difference_type              = std::ptrdiff_t;
+  
   basic_graph() = default;
 
   basic_graph(const basic_graph& g) : vertexes_set_(g.vertexes_set_), edges_set_(g.edges_set_) {}
@@ -58,17 +71,74 @@ class basic_graph {
       edges_set_.erase({second, first});
   }
 
-  auto vertexes_begin() const { return vertexes_set_.begin(); }
+  basic_iterator vertexes_begin(std::function<bool(VertexType* const &)> filter = ret_true) const { 
+    return basic_iterator(vertexes_set_.begin(), vertexes_set_.end(), filter); 
+  }
 
-  auto vertexes_end() const { return vertexes_set_.end(); }
+  basic_iterator vertexes_end(std::function<bool(VertexType* const &)> filter = ret_true) const { 
+    return basic_iterator(vertexes_set_.end(), vertexes_set_.end(), filter); 
+  }
 
   auto edges_begin() const { return edges_set_.begin(); }
 
   auto edges_end() const { return edges_set_.end(); }
 
  private:
+  static bool ret_true(VertexType* const &) { return true; }
+  
   std::unordered_set<VertexType*> vertexes_set_;
   std::unordered_set<std::pair<VertexType*, VertexType*>, EdgeHash<VertexType>> edges_set_;
+};
+
+template<typename VertexType>
+template<bool IsConst>
+class basic_graph<VertexType>::Iterator {
+ public:
+  using iterator_category = std::forward_iterator_tag;
+  using value_type        = std::conditional_t<IsConst, const VertexType*, VertexType*>;
+  using reference         = std::conditional_t<IsConst, const VertexType* const &, VertexType* const &>;
+  using pointer           = std::conditional_t<IsConst, const VertexType*, VertexType*>;
+
+  Iterator(typename std::unordered_set<VertexType*>::const_iterator vertex, typename std::unordered_set<VertexType*>::const_iterator end, 
+           std::function<bool(VertexType* const &)> filter) : vertex_(vertex), end_(end), filter_(filter) {
+    while (vertex_ != end_ && !filter_(*vertex_))
+      ++vertex;
+  }
+
+  Iterator& operator++() {
+    ++vertex_;
+    while (vertex_ != end_ && !filter_(*vertex_)) 
+      ++vertex_;
+    return *this;
+  }
+
+  Iterator operator++(int) {
+    Iterator copy(*this);
+      ++copy;
+    return copy;
+  }
+
+  reference operator*() const {
+    return *vertex_;
+  }
+
+  pointer operator->() const {
+    return *vertex_;
+  }
+
+  bool operator==(const Iterator& other) const {
+    return vertex_ == other.vertex_;
+  }
+  
+  bool operator!=(const Iterator& other) const {
+    return vertex_ != other.vertex_;
+  }
+
+
+ private:
+  typename std::unordered_set<VertexType*>::const_iterator vertex_;
+  typename std::unordered_set<VertexType*>::const_iterator end_;
+  std::function<bool(VertexType* const &)> filter_;
 };
 
 #endif // BASIC_GRAPH_HPP_
