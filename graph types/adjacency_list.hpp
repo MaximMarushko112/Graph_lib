@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <iterator>
+#include <limits>
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
@@ -130,7 +131,7 @@ class adjacency_list {
     
     auto edge = first_vertex_adjacency->second.find(second);
     if (edge == first_vertex_adjacency->second.end()) 
-      throw std::invalid_argument("There is no such edge in graph");
+    return std::numeric_limits<WeightType>::max() / 2;
     
     return edge->second;
   }

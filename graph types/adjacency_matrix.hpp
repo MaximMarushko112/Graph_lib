@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <iterator>
+#include <limits>
 #include <stack>
 #include <stdexcept>
 #include <unordered_map>
@@ -155,7 +156,7 @@ class adjacency_matrix {
       throw std::invalid_argument("There are no such vertexes in graph");
     
     if (!matrix_[first_vertex_index->second][second_vertex_index->second].is_exist)
-      throw std::invalid_argument("There is no such edge in graph");
+      return std::numeric_limits<WeightType>::max() / 2;
     return matrix_[first_vertex_index->second][second_vertex_index->second].weight; 
   }
 

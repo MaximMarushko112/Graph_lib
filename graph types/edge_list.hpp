@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <iterator>
-#include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
@@ -135,7 +135,7 @@ class edge_list {
       if (reverse_edge != edges_.end())
         return edges_.find(std::pair{second, first})->second;
     }
-    throw std::invalid_argument("There is no such edge in graph");
+    return std::numeric_limits<WeightType>::max() / 2;
   }
 
   auto vertexes_begin() const {
