@@ -156,7 +156,7 @@ class adjacency_matrix {
       throw std::invalid_argument("There are no such vertexes in graph");
     
     if (!matrix_[first_vertex_index->second][second_vertex_index->second].is_exist)
-      return std::numeric_limits<WeightType>::max() / 2;
+      return std::numeric_limits<WeightType>::max();
     return matrix_[first_vertex_index->second][second_vertex_index->second].weight; 
   }
 

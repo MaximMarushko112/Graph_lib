@@ -135,7 +135,7 @@ class edge_list {
       if (reverse_edge != edges_.end())
         return edges_.find(std::pair{second, first})->second;
     }
-    return std::numeric_limits<WeightType>::max() / 2;
+    return std::numeric_limits<WeightType>::max();
   }
 
   auto vertexes_begin() const {

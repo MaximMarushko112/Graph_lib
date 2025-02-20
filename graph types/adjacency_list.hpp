@@ -131,7 +131,7 @@ class adjacency_list {
     
     auto edge = first_vertex_adjacency->second.find(second);
     if (edge == first_vertex_adjacency->second.end()) 
-    return std::numeric_limits<WeightType>::max() / 2;
+    return std::numeric_limits<WeightType>::max();
     
     return edge->second;
   }
