@@ -11,8 +11,11 @@
 #include <utility>
 #include <vector>
 
+#include "basic_graph.hpp"
+#include "../utils/edge_hash.hpp"
+
 template<typename VertexType, bool Directed, bool Weighted=false, typename WeightType=int>
-class adjacency_matrix {
+class adjacency_matrix : public basic_graph<VertexType> {
  private:
   struct Edge {
     bool is_exist;
@@ -25,6 +28,7 @@ class adjacency_matrix {
  public:
   using vertex_descriptor       = VertexType*;
   using weight                  = WeightType;
+  using edge_hash               = EdgeHash<VertexType>;
   using iterator                = Iterator<false>;
   using const_iterator          = Iterator<true>;
   using reverse_iterator        = std::reverse_iterator<iterator>;
@@ -33,16 +37,17 @@ class adjacency_matrix {
   
   adjacency_matrix(std::size_t n) : vertexes_(n), matrix_(n, std::vector<Edge>(n)), vertex_count_(), max_vertex_count_(n) {}
 
-  adjacency_matrix(const adjacency_matrix& g) : indexes_(g.indexes_), vertexes_(g.vertexes_), matrix_(g.matrix_), 
-                                                free_indexes_(g.free_indexes_), vertex_count_(g.vertex_count_), 
+  adjacency_matrix(const adjacency_matrix& g) : basic_graph<VertexType>(g), indexes_(g.indexes_), vertexes_(g.vertexes_), 
+                                                matrix_(g.matrix_), free_indexes_(g.free_indexes_), vertex_count_(g.vertex_count_), 
                                                 max_vertex_count_(g.max_vertex_count_) {}
 
-  adjacency_matrix(adjacency_matrix&& g) : indexes_(std::move(g.indexes_)), vertexes_(std::move(g.vertexes_)), 
+  adjacency_matrix(adjacency_matrix&& g) : basic_graph<VertexType>(g), indexes_(std::move(g.indexes_)), vertexes_(std::move(g.vertexes_)), 
                                            matrix_(std::move(g.matrix_)), free_indexes_(std::move(g.free_indexes_)), 
-                                           vertex_count_(std::move(g.vertex_count_)), max_vertex_count_(std::move(g.max_vertex_count_)){}
+                                           vertex_count_(std::move(g.vertex_count_)), max_vertex_count_(std::move(g.max_vertex_count_)) {}
 
   adjacency_matrix& operator=(const adjacency_matrix& g) {
     if (&g != this) {
+      basic_graph<VertexType>(g);
       indexes_ = g.indexes_;
       vertexes_ = g.vertexes_;
       matrix_ = g.matrix_;
@@ -55,6 +60,7 @@ class adjacency_matrix {
 
   adjacency_matrix& operator=(adjacency_matrix&& g) {
     if (&g != this) {
+      basic_graph<VertexType>(g);
       indexes_ = std::move(g.indexes_);
       vertexes_ = std::move(g.vertexes_);
       matrix_ = std::move(g.matrix_);
@@ -75,7 +81,7 @@ class adjacency_matrix {
     std::size_t index = free_index();
     if (!indexes_.insert({vertex, index}).second)
       return false;
-    vertexes_set_.insert(vertex);
+    basic_graph<VertexType>::add_vertex(vertex);
     vertexes_[index] = vertex;
     ++vertex_count_;
     return true;
@@ -92,7 +98,12 @@ class adjacency_matrix {
       matrix_[other_index][vertex_index] = Edge{false, WeightType()};  
     }
 
-    vertexes_set_.erase(vertexes_set_.find(vertex));
+    for (auto neighbour : basic_graph<VertexType>::vertexes_set_) {
+      basic_graph<VertexType>::remove_edge(vertex, neighbour, Directed);
+      basic_graph<VertexType>::remove_edge(neighbour, vertex, Directed);
+    }
+
+    basic_graph<VertexType>::remove_vertex(vertex);
     vertexes_[vertex_index] = nullptr;
     indexes_.erase(vertex_iterator);
     free_indexes_.push(vertex_index);
@@ -101,35 +112,37 @@ class adjacency_matrix {
   }
 
   bool add_edge(VertexType* const & first, VertexType* const & second) {  
-    auto first_vertex_index  = indexes_.find(first);
-    auto second_vertex_index = indexes_.find(second);   
-    if (first_vertex_index == indexes_.end() || second_vertex_index == indexes_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");
-    
     if constexpr (Weighted)
       return false;
     else {
+      auto first_vertex_index  = indexes_.find(first);
+      auto second_vertex_index = indexes_.find(second);   
+      if (first_vertex_index == indexes_.end() || second_vertex_index == indexes_.end())
+        throw std::invalid_argument("There are no such vertexes in graph");
+    
       matrix_[first_vertex_index->second][second_vertex_index->second] = Edge{true, 1};
       if (!Directed) {
         matrix_[second_vertex_index->second][first_vertex_index->second] = Edge{true, 1};
       }
+      basic_graph<VertexType>::add_edge(first, second, Directed);
     }
     return true;
   }
 
   bool add_edge(VertexType* const & first, VertexType* const & second, const WeightType& weight) { 
-    auto first_vertex_index  = indexes_.find(first);
-    auto second_vertex_index = indexes_.find(second);   
-    if (first_vertex_index == indexes_.end() || second_vertex_index == indexes_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");
-    
     if constexpr (!Weighted)
       return false;
     else {
+      auto first_vertex_index  = indexes_.find(first);
+      auto second_vertex_index = indexes_.find(second);   
+      if (first_vertex_index == indexes_.end() || second_vertex_index == indexes_.end())
+        throw std::invalid_argument("There are no such vertexes in graph");
+    
       matrix_[first_vertex_index->second][second_vertex_index->second] = Edge{true, weight};
       if (!Directed) {
         matrix_[second_vertex_index->second][first_vertex_index->second] = Edge{true, weight};
       }
+      basic_graph<VertexType>::add_edge(first, second, Directed);
     }
     return true;
   }
@@ -145,6 +158,7 @@ class adjacency_matrix {
     if (!Directed) {
       matrix_[second_vertex_index->second][first_vertex_index->second] = Edge{false, WeightType()};
     }
+    basic_graph<VertexType>::remove_edge(first, second, Directed);
 
     return edge_found;
   }
@@ -158,14 +172,6 @@ class adjacency_matrix {
     if (!matrix_[first_vertex_index->second][second_vertex_index->second].is_exist)
       return std::numeric_limits<WeightType>::max();
     return matrix_[first_vertex_index->second][second_vertex_index->second].weight; 
-  }
-
-  auto vertexes_begin() const {
-    return vertexes_set_.cbegin();
-  }
-
-  auto vertexes_end() const {
-    return vertexes_set_.cend();
   }
 
   iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
@@ -198,7 +204,6 @@ class adjacency_matrix {
  
  private:
   std::vector<VertexType*> vertexes_;
-  std::unordered_set<VertexType*> vertexes_set_;
   std::unordered_map<VertexType*, std::size_t> indexes_;
   std::vector<std::vector<Edge>> matrix_;
   std::stack<std::size_t> free_indexes_;

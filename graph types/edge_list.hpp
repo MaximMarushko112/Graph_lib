@@ -9,22 +9,19 @@
 #include <unordered_set>
 #include <utility>
 
+#include "basic_graph.hpp"
+#include "../utils/edge_hash.hpp"
+
 template<typename VertexType, bool Directed, bool Weighted=false, typename WeightType=int>
-class edge_list {
+class edge_list : public basic_graph<VertexType> {
  private:  
-  struct EdgeHash {
-    std::size_t operator()(const std::pair<VertexType*, VertexType*>& pair) const noexcept{
-      std::size_t h1 = std::hash<VertexType*>{}(pair.first);
-      std::size_t h2 = std::hash<VertexType*>{}(pair.second);
-      return h1 ^ (h2 << 1);
-    }
-  };
   template <bool IsConst>
   class Iterator;
 
  public:
   using vertex_descriptor       = VertexType*;
   using weight                  = WeightType;
+  using edge_hash               = EdgeHash<VertexType>;
   using iterator                = Iterator<false>;
   using const_iterator          = Iterator<true>;
   using reverse_iterator        = std::reverse_iterator<iterator>;
@@ -33,13 +30,13 @@ class edge_list {
   
   edge_list() = default;
 
-  edge_list(const edge_list& g) : vertexes_(g.vertexes_), edges_(g.edges_) {}
+  edge_list(const edge_list& g) : basic_graph<VertexType>(g), edges_(g.edges_) {}
 
-  edge_list(edge_list&& g) : vertexes_(std::move(g.vertexes_)), edges_(std::move(g.edges_)) {}
+  edge_list(edge_list&& g) : basic_graph<VertexType>(g), edges_(std::move(g.edges_)) {}
 
   edge_list& operator=(const edge_list& g) {
     if (&g != this) {
-      vertexes_ = g.vertexes_;
+      basic_graph<VertexType>(g);
       edges_ = g.edges_;
     }
     return *this;
@@ -47,7 +44,7 @@ class edge_list {
 
   edge_list& operator=(edge_list&& g) {
     if (&g != this) {
-      vertexes_ = std::move(g.vertexes_);
+      basic_graph<VertexType>(g);
       edges_ = std::move(g.edges_);
     }
     return *this;
@@ -60,51 +57,43 @@ class edge_list {
   }
 
   bool add_vertex(VertexType* const & vertex) {
-    return vertexes_.insert(vertex).second;
+    return basic_graph<VertexType>::add_vertex(vertex);
   }
 
   bool remove_vertex(VertexType* const & vertex) {  
-    auto vertex_iterator = vertexes_.find(vertex); 
-    if (vertex_iterator == vertexes_.end())
+    if (!basic_graph<VertexType>::vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
     
-    for (auto neighbour : vertexes_) {
+    for (auto neighbour : basic_graph<VertexType>::vertexes_set_) {
       remove_edge(vertex, neighbour);
       remove_edge(neighbour, vertex);
     }
 
-    vertexes_.erase(vertex_iterator);
-    return true;
+    return basic_graph<VertexType>::remove_vertex(vertex);
   }
 
   bool add_edge(VertexType* const & first, VertexType* const & second) {  
-    if (vertexes_.find(first) == vertexes_.end() || vertexes_.find(second) == vertexes_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");
-    
     if constexpr (Weighted)
       return false;
     else {
+      basic_graph<VertexType>::add_edge(first, second, Directed);
       return edges_.insert({{first, second}, 1}).second;
     }
     return true;
   }
 
   bool add_edge(VertexType* const & first, VertexType* const & second, const WeightType& weight) { 
-    if (vertexes_.find(first) == vertexes_.end() || vertexes_.find(second) == vertexes_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");
-    
     if constexpr (!Weighted)
       return false;
     else {
+      basic_graph<VertexType>::add_edge(first, second, Directed);
       return edges_.insert({{first, second}, weight}).second;
     }
     return true;
   }
 
   bool remove_edge(VertexType* const & first, VertexType* const & second) {
-    if (vertexes_.find(first) == vertexes_.end() || vertexes_.find(second) == vertexes_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");               
-    
+    basic_graph<VertexType>::remove_edge(first, second, Directed);
     auto edge = edges_.find(std::pair{first, second});
     bool edge_found = edge != edges_.end();
     if (edge != edges_.end())
@@ -124,7 +113,7 @@ class edge_list {
   }
 
   WeightType edge_weight(VertexType* const & first, VertexType* const & second) const {
-    if (vertexes_.find(first) == vertexes_.end() || vertexes_.find(second) == vertexes_.end())
+    if (!basic_graph<VertexType>::vertex_in_graph(first) || !basic_graph<VertexType>::vertex_in_graph(second))
       throw std::invalid_argument("There are no such vertexes in graph");
     
     auto edge = edges_.find(std::pair{first, second});
@@ -138,33 +127,22 @@ class edge_list {
     return std::numeric_limits<WeightType>::max();
   }
 
-  auto vertexes_begin() const {
-    return vertexes_.begin();
-  }
-
-  auto vertexes_end() const {
-    return vertexes_.end();
-  }
-
   iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
-    auto vertex_iter = vertexes_.find(vertex);
-    if (vertex_iter == vertexes_.end())
+    if (!vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
-    return iterator(&edges_, vertexes_.begin(), vertexes_.end(), vertex, filter);
+    return iterator(&edges_, basic_graph<VertexType>::vertexes_begin(), basic_graph<VertexType>::vertexes_end(), vertex, filter);
   }
 
   iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
-    auto vertex_iter = vertexes_.find(vertex);
-    if (vertex_iter == vertexes_.end())
+    if (!vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
-    return iterator(&edges_, vertexes_.end(), vertexes_.end(), vertex, filter);
+    return iterator(&edges_, basic_graph<VertexType>::vertexes_end(), basic_graph<VertexType>::vertexes_end(), vertex, filter);
   }
 
  private:
   static bool ret_true(VertexType* const &) { return true; }
 
-  std::unordered_set<VertexType*> vertexes_;
-  std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash> edges_;
+  std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash<VertexType>> edges_;
 };
 
 template <typename VertexType, bool Directed, bool Weighted, typename WeightType>
@@ -176,7 +154,7 @@ class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
   using reference         = std::conditional_t<IsConst, const VertexType* const &, VertexType* const &>;
   using pointer           = std::conditional_t<IsConst, const VertexType*, VertexType*>;
 
-  Iterator(const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash>* edges, typename std::unordered_set<VertexType*>::const_iterator neighbour, 
+  Iterator(const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash<VertexType>>* edges, typename std::unordered_set<VertexType*>::const_iterator neighbour, 
            typename std::unordered_set<VertexType*>::const_iterator end, VertexType* vertex, std::function<bool(VertexType* const &)> filter) 
            : edges_(edges), neighbour_(neighbour), end_(end), vertex_(vertex), filter_(filter) {
     while (neighbour_ != end_ && (!filter_(*neighbour_) || (edges_->find({vertex_, *neighbour_}) == edges_->end() && edges_->find({*neighbour_, vertex_}) == edges_->end()))) 
@@ -213,7 +191,7 @@ class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
   }
 
  private:
-  const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash>* edges_;
+  const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash<VertexType>>* edges_;
   typename std::unordered_set<VertexType*>::const_iterator neighbour_;
   typename std::unordered_set<VertexType*>::const_iterator end_;
   VertexType* vertex_;

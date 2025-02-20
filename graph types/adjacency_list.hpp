@@ -9,8 +9,11 @@
 #include <unordered_set>
 #include <utility>
 
+#include "../utils/edge_hash.hpp"
+#include "basic_graph.hpp"
+
 template<typename VertexType, bool Directed, bool Weighted=false, typename WeightType=int>
-class adjacency_list {
+class adjacency_list : public basic_graph<VertexType> {
  private:
   template <bool IsConst>
   class Iterator;
@@ -18,6 +21,7 @@ class adjacency_list {
  public:
   using vertex_descriptor       = VertexType*;
   using weight                  = WeightType;
+  using edge_hash               = EdgeHash<VertexType>;
   using iterator                = Iterator<false>;
   using const_iterator          = Iterator<true>;
   using reverse_iterator        = std::reverse_iterator<iterator>;
@@ -26,19 +30,23 @@ class adjacency_list {
   
   adjacency_list() = default;
 
-  adjacency_list(const adjacency_list& g) : edges_(g.edges_) {}
+  adjacency_list(const adjacency_list& g) : basic_graph<VertexType>(g), edges_(g.edges_) {}
 
-  adjacency_list(adjacency_list&& g) : edges_(std::move(g.edges_)) {}
+  adjacency_list(adjacency_list&& g) : basic_graph<VertexType>(g), edges_(std::move(g.edges_)) {}
 
   adjacency_list& operator=(const adjacency_list& g) {
-    if (&g != this) 
+    if (&g != this) { 
+      basic_graph<VertexType>(g);
       edges_ = g.edges_;
+    }
     return *this;
   }
 
   adjacency_list& operator=(adjacency_list&& g) {
-    if (&g != this)
+    if (&g != this) {
+      basic_graph<VertexType>(g);
       edges_ = std::move(g.edges_);
+    }
     return *this;
   }
 
@@ -49,13 +57,12 @@ class adjacency_list {
   }
 
   bool add_vertex(VertexType* const & vertex) {
-    vertexes_.insert(vertex);
+    basic_graph<VertexType>::add_vertex(vertex);
     return edges_.insert({vertex, std::unordered_map<VertexType*, WeightType>()}).second;
   }
 
   bool remove_vertex(VertexType* const & vertex) {  
-    auto vertex_iterator = edges_.find(vertex);   
-    if (vertex_iterator == edges_.end())
+    if (!basic_graph<VertexType>::vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
     
     for (auto other_vertex : edges_) {
@@ -64,40 +71,43 @@ class adjacency_list {
         remove_edge(other_vertex.first, vertex);  
     }
 
-    vertexes_.erase(vertexes_.find(vertex));
-    edges_.erase(vertex_iterator);
+    basic_graph<VertexType>::remove_vertex(vertex);
+    edges_.erase(edges_.find(vertex));
     return true;
   }
 
   bool add_edge(VertexType* const & first, VertexType* const & second) {  
-    auto first_vertex_adjacency  = edges_.find(first);
-    auto second_vertex_adjacency = edges_.find(second);   
-    if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end())
-      throw std::invalid_argument("There are no such vertexes in graph");
-    
     if constexpr (Weighted)
       return false;
     else {
+      auto first_vertex_adjacency  = edges_.find(first);
+      auto second_vertex_adjacency = edges_.find(second);   
+      if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end())
+        throw std::invalid_argument("There are no such vertexes in graph");
+    
       first_vertex_adjacency->second.insert({second, 1});
       if (!Directed) {
         second_vertex_adjacency->second.insert({first, 1});
       }
+      basic_graph<VertexType>::add_edge(first, second, Directed);
     }
     return true;
   }
   
   bool add_edge(VertexType* const & first, VertexType* const & second, const WeightType& weight) { 
-    auto first_vertex_adjacency  = edges_.find(first);
-    auto second_vertex_adjacency = edges_.find(second);   
-    if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end()) 
-      throw std::invalid_argument("There are no such vertexes in graph");
     if constexpr (!Weighted)
       return false;               
     else {
+      auto first_vertex_adjacency  = edges_.find(first);
+      auto second_vertex_adjacency = edges_.find(second);   
+      if (first_vertex_adjacency == edges_.end() || second_vertex_adjacency == edges_.end()) 
+        throw std::invalid_argument("There are no such vertexes in graph");
+    
       first_vertex_adjacency->second.insert({second, weight}); 
       if (!Directed) {
         second_vertex_adjacency->second.insert({first, weight});
       }
+      basic_graph<VertexType>::add_edge(first, second, Directed);
     }
     return true;
   }
@@ -120,6 +130,8 @@ class adjacency_list {
       second_vertex_adjacency->second.erase(reverse_edge);
     }
 
+    basic_graph<VertexType>::remove_edge(first, second, Directed);
+
     return true;
   }
 
@@ -131,17 +143,9 @@ class adjacency_list {
     
     auto edge = first_vertex_adjacency->second.find(second);
     if (edge == first_vertex_adjacency->second.end()) 
-    return std::numeric_limits<WeightType>::max();
+      return std::numeric_limits<WeightType>::max();
     
     return edge->second;
-  }
-
-  auto vertexes_begin() const {
-    return vertexes_.begin();
-  }
-
-  auto vertexes_end() const {
-    return vertexes_.end();
   }
 
   iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
@@ -161,7 +165,6 @@ class adjacency_list {
  private:
   static bool ret_true(VertexType* const &) { return true; }
 
-  std::unordered_set<VertexType*> vertexes_;
   std::unordered_map<VertexType*, std::unordered_map<VertexType*, WeightType>> edges_;
 };
 

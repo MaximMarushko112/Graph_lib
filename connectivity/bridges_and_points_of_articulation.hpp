@@ -6,21 +6,14 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#include "../first searches/depth_first_search.hpp"
 
-template <typename Graph>
-struct EdgeHash {
-  std::size_t operator()(const std::pair<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor>& pair) const noexcept{
-    std::size_t h1 = std::hash<typename Graph::vertex_descriptor>{}(pair.first);
-    std::size_t h2 = std::hash<typename Graph::vertex_descriptor>{}(pair.second);
-    return h1 ^ (h2 << 1);
-  }
-};
+#include "../first searches/depth_first_search.hpp"
+#include "../utils/edge_hash.hpp"
 
 template <typename Graph>
 class BridgeVisitor : public DFSVisitor<Graph> {
  public:
-  BridgeVisitor(std::unordered_set<std::pair<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor>, EdgeHash<Graph>>* const & bridges) 
+  BridgeVisitor(std::unordered_set<std::pair<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor>, typename Graph::edge_hash>* const & bridges) 
   : bridges_(bridges), timer_(0) {}
 
   void discover_vertex (const typename Graph::vertex_descriptor& vertex, const Graph& graph) {
@@ -59,12 +52,12 @@ class BridgeVisitor : public DFSVisitor<Graph> {
   std::unordered_map<typename Graph::vertex_descriptor, std::size_t> fup_;
   std::unordered_map<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor> parents_;
   std::unordered_map<typename Graph::vertex_descriptor, std::unordered_set<typename Graph::vertex_descriptor>> tree_edges_;
-  std::unordered_set<std::pair<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor>, EdgeHash<Graph>>* bridges_;
+  std::unordered_set<std::pair<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor>, typename Graph::edge_hash>* bridges_;
 };
 
 template<typename Graph>
 auto find_bridges(const Graph& graph) {
-  std::unordered_set<std::pair<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor>, EdgeHash<Graph>> bridges;
+  std::unordered_set<std::pair<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor>, typename Graph::edge_hash> bridges;
   std::unordered_map<typename Graph::vertex_descriptor, Colour> colours;
   depth_first_search(graph, *graph.vertexes_begin(), BridgeVisitor(&bridges), colours);
   return bridges;

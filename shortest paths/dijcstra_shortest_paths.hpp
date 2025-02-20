@@ -10,8 +10,9 @@
 template<typename Graph>
 auto elogv_dijcstra_shortest_paths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
   std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight> shortest_paths;
+  const typename Graph::weight kInf = std::numeric_limits<typename Graph::weight>::max();
   for (auto vertex = graph.vertexes_begin(); vertex != graph.vertexes_end(); ++vertex) 
-    shortest_paths[*vertex] = std::numeric_limits<typename Graph::weight>::max();
+    shortest_paths[*vertex] = kInf;
   shortest_paths[start] = typename Graph::weight(0);
 
   std::set<std::pair<typename Graph::weight, typename Graph::vertex_descriptor>> available_vertexes;
@@ -34,8 +35,9 @@ template<typename Graph>
 auto v2_dijcstra_shortest_paths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
   std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight> shortest_paths;
   std::set<typename Graph::vertex_descriptor> unused_vertexes;
+  const typename Graph::weight kInf = std::numeric_limits<typename Graph::weight>::max();
   for (auto vertex = graph.vertexes_begin(); vertex != graph.vertexes_end(); ++vertex) {
-    shortest_paths[*vertex] = std::numeric_limits<typename Graph::weight>::max();
+    shortest_paths[*vertex] = kInf;
     unused_vertexes.insert(*vertex);
   }
   shortest_paths[start] = typename Graph::weight(0);

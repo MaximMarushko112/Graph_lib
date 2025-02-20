@@ -1,17 +1,19 @@
 #ifndef FLOYD_WARSHALL_HPP_
 #define FLOYD_WARSHALL_HPP_
 
+#include <iostream>
 #include <unordered_map>
 #include <utility>
 
 template <typename Graph>
-auto floyd_warshall(Graph graph) {
+auto floyd_warshall(const Graph& graph) {
   using vertex_t = typename Graph::vertex_descriptor;
   using weight_t = typename Graph::weight;
   using shortest_paths_helper = std::unordered_map<vertex_t, std::unordered_map<vertex_t, weight_t>>;
   const weight_t kInf = std::numeric_limits<weight_t>::max();
   std::pair<shortest_paths_helper, shortest_paths_helper>  shortest_paths;
   bool second_helper = true;
+
   for (auto first = graph.vertexes_begin(); first != graph.vertexes_end(); ++first) {
     for (auto second = graph.vertexes_begin(); second != graph.vertexes_end(); ++second) {
       if (first == second)
