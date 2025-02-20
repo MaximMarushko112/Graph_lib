@@ -43,6 +43,8 @@ class basic_graph {
 
   bool vertex_in_graph(VertexType* const & vertex) const { return vertexes_set_.find(vertex) != vertexes_set_.end(); }
 
+  bool edge_in_graph(VertexType* const & first, VertexType* const & second) const { return edges_set_.find({first, second}) != edges_set_.end(); }
+
   bool add_vertex(VertexType* const & vertex) { return vertexes_set_.insert(vertex).second; }
 
   bool remove_vertex(VertexType* const & vertex) {
@@ -133,7 +135,6 @@ class basic_graph<VertexType>::Iterator {
   bool operator!=(const Iterator& other) const {
     return vertex_ != other.vertex_;
   }
-
 
  private:
   typename std::unordered_set<VertexType*>::const_iterator vertex_;
