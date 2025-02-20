@@ -46,7 +46,7 @@ class basic_graph {
       throw std::invalid_argument("There are no such vertexes in graph");
     edges_set_.insert({first, second});
     if (!directed)
-      edges_set_.insert({first, second});
+      edges_set_.insert({second, first});
     return true;
   }
 
