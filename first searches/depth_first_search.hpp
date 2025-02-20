@@ -4,11 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
-enum class Colour {
-  White,
-  Gray,
-  Black
-};
+#include "colours.hpp"
 
 template <typename Graph>
 class DFSVisitor {

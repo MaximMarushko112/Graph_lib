@@ -5,11 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-enum class Colour {
-  White,
-  Gray,
-  Black
-};
+#include "colours.hpp"
 
 template <typename Graph>
 class BFSVisitor {
@@ -36,7 +32,7 @@ class BFSVisitor {
 };
 
 template <typename Graph, typename Visitor>
-void breadth_first_search(const Graph& g, std::vector<typename Graph::vertex_descriptor> roots, Visitor visitor, 
+void breadth_first_search(const Graph& g, std::vector<typename Graph::vertex_descriptor> const & roots, Visitor visitor, 
                           std::unordered_map<typename Graph::vertex_descriptor, Colour>& colours) {
   std::queue<typename Graph::vertex_descriptor> queue;
   for (auto vertex = g.vertexes_begin(); vertex != g.vertexes_end(); ++vertex) {
