@@ -13,7 +13,7 @@
 #include "basic_graph.hpp"
 
 template<typename VertexType, bool Directed, bool Weighted=false, typename WeightType=int>
-class adjacency_list : public basic_graph<VertexType> {
+class AdjasencyList : public BasicGraph<VertexType> {
  private:
   template <bool IsConst>
   class Iterator;
@@ -28,41 +28,41 @@ class adjacency_list : public basic_graph<VertexType> {
   using const_reverse_iterator  = std::reverse_iterator<const_iterator>;
   using difference_type         = std::ptrdiff_t;
   
-  adjacency_list() = default;
+  AdjasencyList() = default;
 
-  adjacency_list(const adjacency_list& g) : basic_graph<VertexType>(g), edges_(g.edges_) {}
+  AdjasencyList(const AdjasencyList& g) : BasicGraph<VertexType>(g), edges_(g.edges_) {}
 
-  adjacency_list(adjacency_list&& g) : basic_graph<VertexType>(g), edges_(std::move(g.edges_)) {}
+  AdjasencyList(AdjasencyList&& g) : BasicGraph<VertexType>(g), edges_(std::move(g.edges_)) {}
 
-  adjacency_list& operator=(const adjacency_list& g) {
+  AdjasencyList& operator=(const AdjasencyList& g) {
     if (&g != this) { 
-      basic_graph<VertexType>(g);
+      BasicGraph<VertexType>(g);
       edges_ = g.edges_;
     }
     return *this;
   }
 
-  adjacency_list& operator=(adjacency_list&& g) {
+  AdjasencyList& operator=(AdjasencyList&& g) {
     if (&g != this) {
-      basic_graph<VertexType>(g);
+      BasicGraph<VertexType>(g);
       edges_ = std::move(g.edges_);
     }
     return *this;
   }
 
-  void swap(adjacency_list& g) {
-    adjacency_list tmp(std::move(g));
+  void swap(AdjasencyList& g) {
+    AdjasencyList tmp(std::move(g));
     g = *this;
     *this = tmp;
   }
 
   bool add_vertex(VertexType* const & vertex) {
-    basic_graph<VertexType>::add_vertex(vertex);
+    BasicGraph<VertexType>::add_vertex(vertex);
     return edges_.insert({vertex, std::unordered_map<VertexType*, WeightType>()}).second;
   }
 
   bool remove_vertex(VertexType* const & vertex) {  
-    if (!basic_graph<VertexType>::vertex_in_graph(vertex))
+    if (!BasicGraph<VertexType>::vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
     
     for (auto other_vertex : edges_) {
@@ -71,7 +71,7 @@ class adjacency_list : public basic_graph<VertexType> {
         remove_edge(other_vertex.first, vertex);  
     }
 
-    basic_graph<VertexType>::remove_vertex(vertex);
+    BasicGraph<VertexType>::remove_vertex(vertex);
     edges_.erase(edges_.find(vertex));
     return true;
   }
@@ -89,7 +89,7 @@ class adjacency_list : public basic_graph<VertexType> {
       if (!Directed) {
         second_vertex_adjacency->second.insert({first, 1});
       }
-      basic_graph<VertexType>::add_edge(first, second, Directed);
+      BasicGraph<VertexType>::add_edge(first, second, Directed);
     }
     return true;
   }
@@ -107,7 +107,7 @@ class adjacency_list : public basic_graph<VertexType> {
       if (!Directed) {
         second_vertex_adjacency->second.insert({first, weight});
       }
-      basic_graph<VertexType>::add_edge(first, second, Directed);
+      BasicGraph<VertexType>::add_edge(first, second, Directed);
     }
     return true;
   }
@@ -130,7 +130,7 @@ class adjacency_list : public basic_graph<VertexType> {
       second_vertex_adjacency->second.erase(reverse_edge);
     }
 
-    basic_graph<VertexType>::remove_edge(first, second, Directed);
+    BasicGraph<VertexType>::remove_edge(first, second, Directed);
 
     return true;
   }
@@ -170,7 +170,7 @@ class adjacency_list : public basic_graph<VertexType> {
 
 template <typename VertexType, bool Directed, bool Weighted, typename WeightType>
 template <bool IsConst>
-class adjacency_list<VertexType, Directed, Weighted, WeightType>::Iterator {
+class AdjasencyList<VertexType, Directed, Weighted, WeightType>::Iterator {
  public:
   using iterator_category = std::forward_iterator_tag;
   using value_type        = std::conditional_t<IsConst, const VertexType*, VertexType*>;

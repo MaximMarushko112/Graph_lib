@@ -8,9 +8,9 @@
 #include "../first searches/breadth_first_search.hpp"
 
 template<typename Graph>
-class negative_cycle_visitor : public BFSVisitor<Graph> {
+class NegativeCycleVisitor : public BFSVisitor<Graph> {
  public:
-  negative_cycle_visitor(std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight>* const & shortest_paths) : 
+  NegativeCycleVisitor(std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight>* const & shortest_paths) : 
     shortest_paths_(shortest_paths) {}
   
   void discover_vertex  (const typename Graph::vertex_descriptor& vertex, const Graph& graph) {
@@ -22,7 +22,7 @@ class negative_cycle_visitor : public BFSVisitor<Graph> {
 };
 
 template<typename Graph>
-auto ford_bellman(const Graph& graph, const typename Graph::vertex_descriptor& start) {
+auto FordBellmanShortestPaths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
   const typename Graph::weight kInf = std::numeric_limits<typename Graph::weight>::max();
   const typename Graph::weight kNegInf = std::numeric_limits<typename Graph::weight>::min();
   std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight> shortest_paths;
@@ -52,7 +52,7 @@ auto ford_bellman(const Graph& graph, const typename Graph::vertex_descriptor& s
       negative_cycle_vertex = parents[negative_cycle_vertex];
     }
     std::unordered_map<typename Graph::vertex_descriptor, Colour> colours;
-    breadth_first_search(graph, cycle, negative_cycle_visitor<Graph>(&shortest_paths), colours);
+    BreadthFirstSearch(graph, cycle, NegativeCycleVisitor<Graph>(&shortest_paths), colours);
   }
 
   return shortest_paths;

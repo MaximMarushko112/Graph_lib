@@ -33,7 +33,7 @@ class DFSVisitor {
 };
 
 template <typename Graph, typename Visitor>
-void depth_first_search(const Graph& g, typename Graph::vertex_descriptor root, Visitor visitor, 
+void DepthFirstSearch(const Graph& g, typename Graph::vertex_descriptor root, Visitor visitor, 
                           std::unordered_map<typename Graph::vertex_descriptor, Colour>& colours) {
   for (auto vertex = g.vertexes_begin(); vertex != g.vertexes_end(); ++vertex) {
     visitor.initialize_vertex(*vertex, g);
@@ -41,18 +41,18 @@ void depth_first_search(const Graph& g, typename Graph::vertex_descriptor root, 
   }
 
   visitor.start_vertex(root, g);
-  depth_first_visit(g, root, visitor, colours);
+  DepthFirstVisit(g, root, visitor, colours);
   
   for (auto vertex = g.vertexes_begin(); vertex != g.vertexes_end(); ++vertex) {
     if (colours[*vertex] == Colour::White) {
       visitor.start_vertex(*vertex, g);
-      depth_first_visit(g, *vertex, visitor, colours);
+      DepthFirstVisit(g, *vertex, visitor, colours);
     }
   }
 }
 
 template <typename Graph, typename Visitor>
-void depth_first_visit(const Graph& g, typename Graph::vertex_descriptor root, Visitor& visitor, 
+void DepthFirstVisit(const Graph& g, typename Graph::vertex_descriptor root, Visitor& visitor, 
                        std::unordered_map<typename Graph::vertex_descriptor, Colour>& colours) {
   colours[root] = Colour::Gray;
   visitor.discover_vertex(root, g);
@@ -62,7 +62,7 @@ void depth_first_visit(const Graph& g, typename Graph::vertex_descriptor root, V
     Colour neighbour_colour = colours[*neighbour];
     if (neighbour_colour == Colour::White) {
       visitor.tree_edge(root, *neighbour, g);
-      depth_first_visit(g, *neighbour, visitor, colours);
+      DepthFirstVisit(g, *neighbour, visitor, colours);
     }
     else if (neighbour_colour == Colour::Gray) {
       visitor.back_edge(root, *neighbour, g);

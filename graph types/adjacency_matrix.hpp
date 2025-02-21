@@ -15,7 +15,7 @@
 #include "../utils/edge_hash.hpp"
 
 template<typename VertexType, bool Directed, bool Weighted=false, typename WeightType=int>
-class adjacency_matrix : public basic_graph<VertexType> {
+class AdjacencyMatrix : public BasicGraph<VertexType> {
  private:
   struct Edge {
     bool is_exist;
@@ -35,19 +35,19 @@ class adjacency_matrix : public basic_graph<VertexType> {
   using const_reverse_iterator  = std::reverse_iterator<const_iterator>;
   using difference_type         = std::ptrdiff_t;
   
-  adjacency_matrix(std::size_t n) : vertexes_(n), matrix_(n, std::vector<Edge>(n)), vertex_count_(), max_vertex_count_(n) {}
+  AdjacencyMatrix(std::size_t n) : vertexes_(n), matrix_(n, std::vector<Edge>(n)), vertex_count_(), max_vertex_count_(n) {}
 
-  adjacency_matrix(const adjacency_matrix& g) : basic_graph<VertexType>(g), indexes_(g.indexes_), vertexes_(g.vertexes_), 
+  AdjacencyMatrix(const AdjacencyMatrix& g) : BasicGraph<VertexType>(g), indexes_(g.indexes_), vertexes_(g.vertexes_), 
                                                 matrix_(g.matrix_), free_indexes_(g.free_indexes_), vertex_count_(g.vertex_count_), 
                                                 max_vertex_count_(g.max_vertex_count_) {}
 
-  adjacency_matrix(adjacency_matrix&& g) : basic_graph<VertexType>(g), indexes_(std::move(g.indexes_)), vertexes_(std::move(g.vertexes_)), 
+  AdjacencyMatrix(AdjacencyMatrix&& g) : BasicGraph<VertexType>(g), indexes_(std::move(g.indexes_)), vertexes_(std::move(g.vertexes_)), 
                                            matrix_(std::move(g.matrix_)), free_indexes_(std::move(g.free_indexes_)), 
                                            vertex_count_(std::move(g.vertex_count_)), max_vertex_count_(std::move(g.max_vertex_count_)) {}
 
-  adjacency_matrix& operator=(const adjacency_matrix& g) {
+  AdjacencyMatrix& operator=(const AdjacencyMatrix& g) {
     if (&g != this) {
-      basic_graph<VertexType>(g);
+      BasicGraph<VertexType>(g);
       indexes_ = g.indexes_;
       vertexes_ = g.vertexes_;
       matrix_ = g.matrix_;
@@ -58,9 +58,9 @@ class adjacency_matrix : public basic_graph<VertexType> {
     return *this;
   }
 
-  adjacency_matrix& operator=(adjacency_matrix&& g) {
+  AdjacencyMatrix& operator=(AdjacencyMatrix&& g) {
     if (&g != this) {
-      basic_graph<VertexType>(g);
+      BasicGraph<VertexType>(g);
       indexes_ = std::move(g.indexes_);
       vertexes_ = std::move(g.vertexes_);
       matrix_ = std::move(g.matrix_);
@@ -71,8 +71,8 @@ class adjacency_matrix : public basic_graph<VertexType> {
     return *this;
   }
 
-  void swap(adjacency_matrix& g) {
-    adjacency_matrix tmp(std::move(g));
+  void swap(AdjacencyMatrix& g) {
+    AdjacencyMatrix tmp(std::move(g));
     g = *this;
     *this = tmp;
   }
@@ -81,7 +81,7 @@ class adjacency_matrix : public basic_graph<VertexType> {
     std::size_t index = free_index();
     if (!indexes_.insert({vertex, index}).second)
       return false;
-    basic_graph<VertexType>::add_vertex(vertex);
+    BasicGraph<VertexType>::add_vertex(vertex);
     vertexes_[index] = vertex;
     ++vertex_count_;
     return true;
@@ -98,12 +98,12 @@ class adjacency_matrix : public basic_graph<VertexType> {
       matrix_[other_index][vertex_index] = Edge{false, WeightType()};  
     }
 
-    for (auto neighbour : basic_graph<VertexType>::vertexes_set_) {
-      basic_graph<VertexType>::remove_edge(vertex, neighbour, Directed);
-      basic_graph<VertexType>::remove_edge(neighbour, vertex, Directed);
+    for (auto neighbour : BasicGraph<VertexType>::vertexes_set_) {
+      BasicGraph<VertexType>::remove_edge(vertex, neighbour, Directed);
+      BasicGraph<VertexType>::remove_edge(neighbour, vertex, Directed);
     }
 
-    basic_graph<VertexType>::remove_vertex(vertex);
+    BasicGraph<VertexType>::remove_vertex(vertex);
     vertexes_[vertex_index] = nullptr;
     indexes_.erase(vertex_iterator);
     free_indexes_.push(vertex_index);
@@ -124,7 +124,7 @@ class adjacency_matrix : public basic_graph<VertexType> {
       if (!Directed) {
         matrix_[second_vertex_index->second][first_vertex_index->second] = Edge{true, 1};
       }
-      basic_graph<VertexType>::add_edge(first, second, Directed);
+      BasicGraph<VertexType>::add_edge(first, second, Directed);
     }
     return true;
   }
@@ -142,7 +142,7 @@ class adjacency_matrix : public basic_graph<VertexType> {
       if (!Directed) {
         matrix_[second_vertex_index->second][first_vertex_index->second] = Edge{true, weight};
       }
-      basic_graph<VertexType>::add_edge(first, second, Directed);
+      BasicGraph<VertexType>::add_edge(first, second, Directed);
     }
     return true;
   }
@@ -158,7 +158,7 @@ class adjacency_matrix : public basic_graph<VertexType> {
     if (!Directed) {
       matrix_[second_vertex_index->second][first_vertex_index->second] = Edge{false, WeightType()};
     }
-    basic_graph<VertexType>::remove_edge(first, second, Directed);
+    BasicGraph<VertexType>::remove_edge(first, second, Directed);
 
     return edge_found;
   }
@@ -213,7 +213,7 @@ class adjacency_matrix : public basic_graph<VertexType> {
 
 template <typename VertexType, bool Directed, bool Weighted, typename WeightType>
 template <bool IsConst>
-class adjacency_matrix<VertexType, Directed, Weighted, WeightType>::Iterator {
+class AdjacencyMatrix<VertexType, Directed, Weighted, WeightType>::Iterator {
  public:
   using iterator_category = std::forward_iterator_tag;
   using value_type        = std::conditional_t<IsConst, const VertexType*, VertexType*>;

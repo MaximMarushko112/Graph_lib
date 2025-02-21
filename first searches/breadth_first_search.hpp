@@ -32,7 +32,7 @@ class BFSVisitor {
 };
 
 template <typename Graph, typename Visitor>
-void breadth_first_search(const Graph& g, std::vector<typename Graph::vertex_descriptor> const & roots, Visitor visitor, 
+void BreadthFirstSearch(const Graph& g, std::vector<typename Graph::vertex_descriptor> const & roots, Visitor visitor, 
                           std::unordered_map<typename Graph::vertex_descriptor, Colour>& colours) {
   std::queue<typename Graph::vertex_descriptor> queue;
   for (auto vertex = g.vertexes_begin(); vertex != g.vertexes_end(); ++vertex) {
@@ -75,9 +75,9 @@ void breadth_first_search(const Graph& g, std::vector<typename Graph::vertex_des
 }
 
 template <typename Graph, typename Visitor>
-void breadth_first_search(const Graph& g, typename Graph::vertex_descriptor root, Visitor visitor, 
+void BreadthFirstSearch(const Graph& g, typename Graph::vertex_descriptor root, Visitor visitor, 
                           std::unordered_map<typename Graph::vertex_descriptor, Colour>& colours) {
-  breadth_first_search(g, std::vector<typename Graph::vertex_descriptor>(1, root), visitor, colours);
+  BreadthFirstSearch(g, std::vector<typename Graph::vertex_descriptor>(1, root), visitor, colours);
 }
 
 #endif // BREADTH_FIRST_SEARCH_HPP_

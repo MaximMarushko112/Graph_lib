@@ -56,10 +56,10 @@ class BridgeVisitor : public DFSVisitor<Graph> {
 };
 
 template<typename Graph>
-auto find_bridges(const Graph& graph) {
+auto FindBridges(const Graph& graph) {
   std::unordered_set<std::pair<typename Graph::vertex_descriptor, typename Graph::vertex_descriptor>, typename Graph::edge_hash> bridges;
   std::unordered_map<typename Graph::vertex_descriptor, Colour> colours;
-  depth_first_search(graph, *graph.vertexes_begin(), BridgeVisitor(&bridges), colours);
+  DepthFirstSearch(graph, *graph.vertexes_begin(), BridgeVisitor<Graph>(&bridges), colours);
   return bridges;
 }
 
@@ -129,10 +129,10 @@ class PointsOfArticulationVisitor : public DFSVisitor<Graph> {
 };
 
 template<typename Graph>
-auto find_points_of_articulation(const Graph& graph) {
+auto FindPointsOfArticulation(const Graph& graph) {
   std::unordered_set<typename Graph::vertex_descriptor> points_of_articulation;
   std::unordered_map<typename Graph::vertex_descriptor, Colour> colours;
-  depth_first_search(graph, *graph.vertexes_begin(), PointsOfArticulationVisitor<Graph>(&points_of_articulation), colours);
+  DepthFirstSearch(graph, *graph.vertexes_begin(), PointsOfArticulationVisitor<Graph>(&points_of_articulation), colours);
   return points_of_articulation;
 }
 

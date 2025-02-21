@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 template<typename Graph>
-auto double_dijcstra(const Graph& graph, const typename Graph::vertex_descriptor& start, const typename Graph::vertex_descriptor& finish) {
+auto DoubleDijcstraShortestPath(const Graph& graph, const typename Graph::vertex_descriptor& start, const typename Graph::vertex_descriptor& finish) {
   const typename Graph::weight kInf = std::numeric_limits<typename Graph::weight>::max();
   std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight> shortest_paths_forward;
   std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight> shortest_paths_reverse;

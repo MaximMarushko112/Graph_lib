@@ -13,7 +13,7 @@
 #include "../utils/edge_hash.hpp"
 
 template<typename VertexType, bool Directed, bool Weighted=false, typename WeightType=int>
-class edge_list : public basic_graph<VertexType> {
+class EdgeList : public BasicGraph<VertexType> {
  private:  
   template <bool IsConst>
   class Iterator;
@@ -28,55 +28,55 @@ class edge_list : public basic_graph<VertexType> {
   using const_reverse_iterator  = std::reverse_iterator<const_iterator>;
   using difference_type         = std::ptrdiff_t;
   
-  edge_list() = default;
+  EdgeList() = default;
 
-  edge_list(const edge_list& g) : basic_graph<VertexType>(g), edges_(g.edges_) {}
+  EdgeList(const EdgeList& g) : BasicGraph<VertexType>(g), edges_(g.edges_) {}
 
-  edge_list(edge_list&& g) : basic_graph<VertexType>(g), edges_(std::move(g.edges_)) {}
+  EdgeList(EdgeList&& g) : BasicGraph<VertexType>(g), edges_(std::move(g.edges_)) {}
 
-  edge_list& operator=(const edge_list& g) {
+  EdgeList& operator=(const EdgeList& g) {
     if (&g != this) {
-      basic_graph<VertexType>(g);
+      BasicGraph<VertexType>(g);
       edges_ = g.edges_;
     }
     return *this;
   }
 
-  edge_list& operator=(edge_list&& g) {
+  EdgeList& operator=(EdgeList&& g) {
     if (&g != this) {
-      basic_graph<VertexType>(g);
+      BasicGraph<VertexType>(g);
       edges_ = std::move(g.edges_);
     }
     return *this;
   }
 
-  void swap(edge_list& g) {
-    edge_list tmp(std::move(g));
+  void swap(EdgeList& g) {
+    EdgeList tmp(std::move(g));
     g = *this;
     *this = tmp;
   }
 
   bool add_vertex(VertexType* const & vertex) {
-    return basic_graph<VertexType>::add_vertex(vertex);
+    return BasicGraph<VertexType>::add_vertex(vertex);
   }
 
   bool remove_vertex(VertexType* const & vertex) {  
-    if (!basic_graph<VertexType>::vertex_in_graph(vertex))
+    if (!BasicGraph<VertexType>::vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
     
-    for (auto neighbour : basic_graph<VertexType>::vertexes_set_) {
+    for (auto neighbour : BasicGraph<VertexType>::vertexes_set_) {
       remove_edge(vertex, neighbour);
       remove_edge(neighbour, vertex);
     }
 
-    return basic_graph<VertexType>::remove_vertex(vertex);
+    return BasicGraph<VertexType>::remove_vertex(vertex);
   }
 
   bool add_edge(VertexType* const & first, VertexType* const & second) {  
     if constexpr (Weighted)
       return false;
     else {
-      basic_graph<VertexType>::add_edge(first, second, Directed);
+      BasicGraph<VertexType>::add_edge(first, second, Directed);
       return edges_.insert({{first, second}, 1}).second;
     }
     return true;
@@ -86,14 +86,14 @@ class edge_list : public basic_graph<VertexType> {
     if constexpr (!Weighted)
       return false;
     else {
-      basic_graph<VertexType>::add_edge(first, second, Directed);
+      BasicGraph<VertexType>::add_edge(first, second, Directed);
       return edges_.insert({{first, second}, weight}).second;
     }
     return true;
   }
 
   bool remove_edge(VertexType* const & first, VertexType* const & second) {
-    basic_graph<VertexType>::remove_edge(first, second, Directed);
+    BasicGraph<VertexType>::remove_edge(first, second, Directed);
     auto edge = edges_.find(std::pair{first, second});
     bool edge_found = edge != edges_.end();
     if (edge != edges_.end())
@@ -113,7 +113,7 @@ class edge_list : public basic_graph<VertexType> {
   }
 
   WeightType edge_weight(VertexType* const & first, VertexType* const & second) const {
-    if (!basic_graph<VertexType>::vertex_in_graph(first) || !basic_graph<VertexType>::vertex_in_graph(second))
+    if (!BasicGraph<VertexType>::vertex_in_graph(first) || !BasicGraph<VertexType>::vertex_in_graph(second))
       throw std::invalid_argument("There are no such vertexes in graph");
     
     auto edge = edges_.find(std::pair{first, second});
@@ -128,15 +128,15 @@ class edge_list : public basic_graph<VertexType> {
   }
 
   iterator neighbours_begin(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
-    if (!basic_graph<VertexType>::vertex_in_graph(vertex))
+    if (!BasicGraph<VertexType>::vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
-    return iterator(&edges_, basic_graph<VertexType>::vertexes_begin(), basic_graph<VertexType>::vertexes_end(), vertex, filter);
+    return iterator(&edges_, BasicGraph<VertexType>::vertexes_begin(), BasicGraph<VertexType>::vertexes_end(), vertex, filter);
   }
 
   iterator neighbours_end(VertexType* const & vertex, std::function<bool(VertexType* const &)> filter = ret_true) const {
-    if (!basic_graph<VertexType>::vertex_in_graph(vertex))
+    if (!BasicGraph<VertexType>::vertex_in_graph(vertex))
       throw std::invalid_argument("There is no such vertex in graph");
-    return iterator(&edges_, basic_graph<VertexType>::vertexes_end(), basic_graph<VertexType>::vertexes_end(), vertex, filter);
+    return iterator(&edges_, BasicGraph<VertexType>::vertexes_end(), BasicGraph<VertexType>::vertexes_end(), vertex, filter);
   }
 
  private:
@@ -147,7 +147,7 @@ class edge_list : public basic_graph<VertexType> {
 
 template <typename VertexType, bool Directed, bool Weighted, typename WeightType>
 template <bool IsConst>
-class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
+class EdgeList<VertexType, Directed, Weighted, WeightType>::Iterator {
  public:
   using iterator_category = std::forward_iterator_tag;
   using value_type        = std::conditional_t<IsConst, const VertexType*, VertexType*>;
@@ -155,7 +155,7 @@ class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
   using pointer           = std::conditional_t<IsConst, const VertexType*, VertexType*>;
 
   Iterator(const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash<VertexType>>* edges, 
-           typename basic_graph<VertexType>::basic_iterator neighbour, typename basic_graph<VertexType>::basic_iterator end, 
+           typename BasicGraph<VertexType>::basic_iterator neighbour, typename BasicGraph<VertexType>::basic_iterator end, 
            VertexType* vertex, std::function<bool(VertexType* const &)> filter) 
            : edges_(edges), neighbour_(neighbour), end_(end), vertex_(vertex), filter_(filter) {
     while (neighbour_ != end_ && (!filter_(*neighbour_) || (edges_->find({vertex_, *neighbour_}) == edges_->end() && edges_->find({*neighbour_, vertex_}) == edges_->end()))) 
@@ -193,8 +193,8 @@ class edge_list<VertexType, Directed, Weighted, WeightType>::Iterator {
 
  private:
   const std::unordered_map<std::pair<VertexType*, VertexType*>, WeightType, EdgeHash<VertexType>>* edges_;
-  typename basic_graph<VertexType>::basic_iterator neighbour_;
-  typename basic_graph<VertexType>::basic_iterator end_;
+  typename BasicGraph<VertexType>::basic_iterator neighbour_;
+  typename BasicGraph<VertexType>::basic_iterator end_;
   VertexType* vertex_;
   std::function<bool(VertexType* const &)> filter_;
 };

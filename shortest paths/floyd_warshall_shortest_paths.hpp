@@ -6,7 +6,7 @@
 #include <utility>
 
 template <typename Graph>
-auto floyd_warshall(const Graph& graph) {
+auto FloydWarshallShortestPaths(const Graph& graph) {
   using vertex_t = typename Graph::vertex_descriptor;
   using weight_t = typename Graph::weight;
   using shortest_paths_helper = std::unordered_map<vertex_t, std::unordered_map<vertex_t, weight_t>>;

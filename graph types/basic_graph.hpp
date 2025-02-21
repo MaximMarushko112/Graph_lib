@@ -7,25 +7,25 @@
 #include "../utils/edge_hash.hpp"
 
 template<typename VertexType>
-class basic_graph {
+class BasicGraph {
  private:
   template <bool IsConst>
-  class Iterator;
+  class VertexIterator;
 
  public:
-  using basic_iterator               = Iterator<false>;
-  using const_basic_iterator         = Iterator<true>;
+  using basic_iterator               = VertexIterator<false>;
+  using const_basic_iterator         = VertexIterator<true>;
   using reverse_basic_iterator       = std::reverse_iterator<basic_iterator>;
   using const_reverse_basic_iterator = std::reverse_iterator<const_basic_iterator>;
   using difference_type              = std::ptrdiff_t;
   
-  basic_graph() = default;
+  BasicGraph() = default;
 
-  basic_graph(const basic_graph& g) : vertexes_set_(g.vertexes_set_), edges_set_(g.edges_set_) {}
+  BasicGraph(const BasicGraph& g) : vertexes_set_(g.vertexes_set_), edges_set_(g.edges_set_) {}
 
-  basic_graph(basic_graph&& g) : vertexes_set_(std::move(g.vertexes_set_)), edges_set_(std::move(g.edges_set_)) {}
+  BasicGraph(BasicGraph&& g) : vertexes_set_(std::move(g.vertexes_set_)), edges_set_(std::move(g.edges_set_)) {}
 
-  basic_graph& operator=(const basic_graph& g) {
+  BasicGraph& operator=(const BasicGraph& g) {
     if (&g != this) {
       vertexes_set_ = g.vertexes_set_;
       edges_set_ = g.edges_set_;
@@ -33,7 +33,7 @@ class basic_graph {
     return *this;
   }
 
-  basic_graph& operator=(basic_graph&& g) {
+  BasicGraph& operator=(BasicGraph&& g) {
     if (&g != this) {
       vertexes_set_ = std::move(g.vertexes_set_);
       edges_set_ = std::move(g.edges_set_);
@@ -94,28 +94,28 @@ class basic_graph {
 
 template<typename VertexType>
 template<bool IsConst>
-class basic_graph<VertexType>::Iterator {
+class BasicGraph<VertexType>::VertexIterator {
  public:
   using iterator_category = std::forward_iterator_tag;
   using value_type        = std::conditional_t<IsConst, const VertexType*, VertexType*>;
   using reference         = std::conditional_t<IsConst, const VertexType* const &, VertexType* const &>;
   using pointer           = std::conditional_t<IsConst, const VertexType*, VertexType*>;
 
-  Iterator(typename std::unordered_set<VertexType*>::const_iterator vertex, typename std::unordered_set<VertexType*>::const_iterator end, 
+  VertexIterator(typename std::unordered_set<VertexType*>::const_iterator vertex, typename std::unordered_set<VertexType*>::const_iterator end, 
            std::function<bool(VertexType* const &)> filter) : vertex_(vertex), end_(end), filter_(filter) {
     while (vertex_ != end_ && !filter_(*vertex_))
       ++vertex;
   }
 
-  Iterator& operator++() {
+  VertexIterator& operator++() {
     ++vertex_;
     while (vertex_ != end_ && !filter_(*vertex_)) 
       ++vertex_;
     return *this;
   }
 
-  Iterator operator++(int) {
-    Iterator copy(*this);
+  VertexIterator operator++(int) {
+    VertexIterator copy(*this);
       ++copy;
     return copy;
   }
@@ -128,11 +128,11 @@ class basic_graph<VertexType>::Iterator {
     return *vertex_;
   }
 
-  bool operator==(const Iterator& other) const {
+  bool operator==(const VertexIterator& other) const {
     return vertex_ == other.vertex_;
   }
   
-  bool operator!=(const Iterator& other) const {
+  bool operator!=(const VertexIterator& other) const {
     return vertex_ != other.vertex_;
   }
 

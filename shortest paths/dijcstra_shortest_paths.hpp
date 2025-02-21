@@ -8,7 +8,7 @@
 #include <utility>
 
 template<typename Graph>
-auto elogv_dijcstra_shortest_paths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
+auto ElogVDijcstraShortestPaths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
   std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight> shortest_paths;
   const typename Graph::weight kInf = std::numeric_limits<typename Graph::weight>::max();
   for (auto vertex = graph.vertexes_begin(); vertex != graph.vertexes_end(); ++vertex) 
@@ -32,7 +32,7 @@ auto elogv_dijcstra_shortest_paths(const Graph& graph, const typename Graph::ver
 }
 
 template<typename Graph>
-auto v2_dijcstra_shortest_paths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
+auto V2DijcstraShortestPaths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
   std::unordered_map<typename Graph::vertex_descriptor, typename Graph::weight> shortest_paths;
   std::set<typename Graph::vertex_descriptor> unused_vertexes;
   const typename Graph::weight kInf = std::numeric_limits<typename Graph::weight>::max();
@@ -58,10 +58,10 @@ auto v2_dijcstra_shortest_paths(const Graph& graph, const typename Graph::vertex
 }
 
 template<typename Graph, bool IsSparse>
-auto dijcstra_shortest_paths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
+auto DijcstraShortestPaths(const Graph& graph, const typename Graph::vertex_descriptor& start) {
   if (IsSparse) 
-    return elogv_dijcstra_shortest_paths<Graph>(graph, start);
-  return v2_dijcstra_shortest_paths<Graph>(graph, start);
+    return ElogVDijcstraShortestPaths<Graph>(graph, start);
+  return V2DijcstraShortestPaths<Graph>(graph, start);
 }
 
 
