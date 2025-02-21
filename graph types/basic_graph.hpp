@@ -122,7 +122,7 @@ class BasicGraph<VertexType>::VertexIterator {
       typename std::unordered_set<VertexType*>::const_iterator end,
       std::function<bool(VertexType* const&)> filter)
       : vertex_(vertex), end_(end), filter_(filter) {
-    while (vertex_ != end_ && !filter_(*vertex_)) ++vertex;
+    while (vertex_ != end_ && !filter_(*vertex_)) ++vertex_;
   }
 
   VertexIterator& operator++() {

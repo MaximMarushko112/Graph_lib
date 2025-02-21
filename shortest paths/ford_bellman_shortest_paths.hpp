@@ -1,5 +1,5 @@
-#ifndef FORD_BELLMAN_HPP_
-#define FORD_BELLMAN_HPP_
+#ifndef FORD_BELLMAN_SHORTEST_PATHS_HPP_
+#define FORD_BELLMAN_SHORTEST_PATHS_HPP_
 
 #include <algorithm>
 #include <limits>
@@ -75,4 +75,4 @@ auto FordBellmanShortestPaths(const Graph& graph,
   return shortest_paths;
 }
 
-#endif  // FORD_BELLMAN_HPP_
+#endif  // FORD_BELLMAN_SHORTEST_PATHS_HPP_

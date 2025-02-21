@@ -1,5 +1,5 @@
-#ifndef FLOYD_WARSHALL_HPP_
-#define FLOYD_WARSHALL_HPP_
+#ifndef FLOYD_WARSHALL_SHORTEST_PATHS_HPP_
+#define FLOYD_WARSHALL_SHORTEST_PATHS_HPP_
 
 #include <unordered_map>
 #include <utility>
@@ -62,4 +62,4 @@ auto FloydWarshallShortestPaths(const Graph& graph) {
   return shortest_paths.second;
 }
 
-#endif  // FLOYD_WARSHALL_HPP_
+#endif  // FLOYD_WARSHALL_SHORTEST_PATHS_HPP_

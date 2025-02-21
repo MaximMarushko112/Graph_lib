@@ -1,5 +1,5 @@
-#ifndef DOUBLE_DIJCSTRA_HPP_
-#define DOUBLE_DIJCSTRA_HPP_
+#ifndef DOUBLE_DIJCSTRA_SHORTEST_PATH_HPP_
+#define DOUBLE_DIJCSTRA_SHORTEST_PATH_HPP_
 
 #include <algorithm>
 #include <set>
@@ -59,9 +59,12 @@ auto DoubleDijcstraShortestPath(
         nearest_vertex_reverse = vertex;
     }
 
-    for (auto neighbour = graph.vertexes_begin();
-         neighbour != graph.vertexes_end(); ++neighbour) {
-      if (!graph.edge_in_graph(*neighbour, *nearest_vertex_reverse)) continue;
+    auto reverse_filter = [&graph, &nearest_vertex_reverse](
+                              typename Graph::vertex_descriptor const& vertex) {
+      return graph.edge_in_graph(vertex, *nearest_vertex_reverse);
+    };
+    for (auto neighbour = graph.vertexes_begin(reverse_filter);
+         neighbour != graph.vertexes_end(reverse_filter); ++neighbour) {
       shortest_paths_reverse[*neighbour] = std::min<typename Graph::weight>(
           shortest_paths_reverse[*neighbour],
           shortest_paths_reverse[*nearest_vertex_reverse] +
@@ -88,4 +91,4 @@ auto DoubleDijcstraShortestPath(
   return shortest_path;
 }
 
-#endif  // DOUBLE_DIJCSTRA_HPP_
+#endif  // DOUBLE_DIJCSTRA_SHORTEST_PATH_HPP_
