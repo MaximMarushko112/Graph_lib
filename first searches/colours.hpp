@@ -1,10 +1,6 @@
 #ifndef COLOURS_HPP_
 #define COLOURS_HPP_
 
-enum class Colour {
-  White,
-  Gray,
-  Black
-};
+enum class Colour { White, Gray, Black };
 
-#endif // COLOURS_HPP_
+#endif  // COLOURS_HPP_
