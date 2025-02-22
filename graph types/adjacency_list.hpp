@@ -26,7 +26,7 @@
  */
 template <typename VertexType, bool Directed, bool Weighted = false,
           typename WeightType = int>
-class AdjasencyList : public BasicGraph<VertexType> {
+class AdjacencyList : public BasicGraph<VertexType> {
  private:
   template <bool IsConst>
   class Iterator;
@@ -47,14 +47,14 @@ class AdjasencyList : public BasicGraph<VertexType> {
   /**
    * @brief Конструктор по умолчанию.
    */
-  AdjasencyList() = default;
+  AdjacencyList() = default;
 
   /**
    * @brief Конструктор копирования.
    *
    * @param g Граф, который будет скопирован.
    */
-  AdjasencyList(const AdjasencyList& g)
+  AdjacencyList(const AdjacencyList& g)
       : BasicGraph<VertexType>(g), edges_(g.edges_) {}
 
   /**
@@ -62,7 +62,7 @@ class AdjasencyList : public BasicGraph<VertexType> {
    *
    * @param g Граф, который будет перемещен.
    */
-  AdjasencyList(AdjasencyList&& g)
+  AdjacencyList(AdjacencyList&& g)
       : BasicGraph<VertexType>(g), edges_(std::move(g.edges_)) {}
 
   /**
@@ -71,7 +71,7 @@ class AdjasencyList : public BasicGraph<VertexType> {
    * @param g Граф, который будет присвоен.
    * @return Ссылка на текущий объект.
    */
-  AdjasencyList& operator=(const AdjasencyList& g) {
+  AdjacencyList& operator=(const AdjacencyList& g) {
     if (&g != this) {
       BasicGraph<VertexType>::operator=(g);
       edges_ = g.edges_;
@@ -85,7 +85,7 @@ class AdjasencyList : public BasicGraph<VertexType> {
    * @param g Граф, который будет перемещен.
    * @return Ссылка на текущий объект.
    */
-  AdjasencyList& operator=(AdjasencyList&& g) {
+  AdjacencyList& operator=(AdjacencyList&& g) {
     if (&g != this) {
       BasicGraph<VertexType>::operator=(g);
       edges_ = std::move(g.edges_);
@@ -98,8 +98,8 @@ class AdjasencyList : public BasicGraph<VertexType> {
    *
    * @param g Граф, с которым будет произведен обмен.
    */
-  void swap(AdjasencyList& g) {
-    AdjasencyList tmp(std::move(g));
+  void swap(AdjacencyList& g) {
+    AdjacencyList tmp(std::move(g));
     g = *this;
     *this = tmp;
   }
@@ -304,7 +304,7 @@ class AdjasencyList : public BasicGraph<VertexType> {
 };
 
 /**
- * @brief Итератор по соседям для класса AdjasencyList.
+ * @brief Итератор по соседям для класса AdjacencyList.
  *
  * @tparam VertexType Тип вершин графа.
  * @tparam Directed Указывает, является ли граф направленным.
@@ -314,7 +314,7 @@ class AdjasencyList : public BasicGraph<VertexType> {
 template <typename VertexType, bool Directed, bool Weighted,
           typename WeightType>
 template <bool IsConst>
-class AdjasencyList<VertexType, Directed, Weighted, WeightType>::Iterator {
+class AdjacencyList<VertexType, Directed, Weighted, WeightType>::Iterator {
  public:
   using iterator_category =
       std::forward_iterator_tag;  ///< Категория итератора.

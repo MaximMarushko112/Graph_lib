@@ -168,6 +168,7 @@ class PointsOfArticulationVisitor : public DFSVisitor<Graph> {
   void start_vertex(const typename Graph::vertex_descriptor& vertex,
                     const Graph& graph) {
     start_ = vertex;  // Запоминаем начальную вершину
+    start_recursive_calls_count_ = 0;
   }
 
   /**

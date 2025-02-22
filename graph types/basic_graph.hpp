@@ -208,7 +208,7 @@ class BasicGraph {
    */
   auto edges_end() const { return edges_set_.end(); }
 
- private:
+ protected:
   /**
    * @brief Функция-фильтр, которая всегда возвращает true.
    *

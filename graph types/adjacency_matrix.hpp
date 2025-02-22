@@ -361,7 +361,7 @@ class AdjacencyMatrix : public BasicGraph<VertexType> {
   std::size_t free_index() {
     if (free_indexes_.empty()) {
       if (vertex_count_ >= max_vertex_count_)
-        throw std::length_error("Too much vertexes_");
+        throw std::length_error("Too much vertexes");
       return vertex_count_;
     }
     std::size_t index = free_indexes_.top();

@@ -59,6 +59,7 @@ auto DoubleDijcstraShortestPath(
         nearest_vertex_forward = vertex;
     }
 
+    if (shortest_paths_forward[*nearest_vertex_forward] == kInf) break;
     for (auto neighbour = graph.neighbours_begin(*nearest_vertex_forward);
          neighbour != graph.neighbours_end(*nearest_vertex_forward);
          ++neighbour) {
@@ -82,6 +83,7 @@ auto DoubleDijcstraShortestPath(
         nearest_vertex_reverse = vertex;
     }
 
+    if (shortest_paths_reverse[*nearest_vertex_reverse] == kInf) break;
     auto reverse_filter = [&graph, &nearest_vertex_reverse](
                               typename Graph::vertex_descriptor const& vertex) {
       return graph.edge_in_graph(vertex, *nearest_vertex_reverse);
